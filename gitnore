@@ -3,3 +3,6 @@
 
 # But do not ignore .txt files
 !*.txt
+
+# But do not ignore .evce files
+!*.txt

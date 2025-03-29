@@ -1,12 +1,16 @@
 #include <stdio.h>
+#include <stdint.h>
+#include "board.h"
 
-typedef struct {
-    long wBishop;
-    long wRook;
-    long wKnight;
-    long wQueen;
-    long bBishop;
-    long bRook;
-    long bKnight;
-    long bQueen;
-}chessBoard;
+
+/**
+ * Take a fen stirng and converts the fenString into bitboards
+ */
+void fenToBit(chessBoard *board, char *fenString) {
+    
+}
+
+//Take bit boards and converts them to a fenString 
+void bitToFen(chessBoard *board, char *fenString) {
+    
+}

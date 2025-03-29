@@ -4,7 +4,7 @@ SRC_DIR = src
 CC = gcc
 CFLAGS = -Wall -Wextra -std=c11
 TARGET = board
-OBJ = $(SRC_DIR)/board.o
+OBJ = $(SRC_DIR)/board.o $(SRC_DIR)/main.o
 
 all: $(TARGET)
 
