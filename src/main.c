@@ -3,6 +3,7 @@
 
 
 int main() {
+    /* 
     chessBoard board;
     board.wBishop = 0x0000000000000024ULL;
     board.wRook = 0x0000000000000081ULL;
@@ -16,9 +17,13 @@ int main() {
     board.bQueen = 0x0800000000000000ULL;
     board.bKing = 0x1000000000000000ULL;
     board.bPawn = 0x00FF000000000000ULL;
-
+    */
+    chessBoard board;
     char fenString[64];
-    bitToFen(&board, fenString);
-    printf("%s",fenString);
+
+    printf("Give the fen string: ");
+    scanf("%s", fenString);
+    fenToBit(&board, fenString);
+    printBitBoard(board);
     return 0;
 }

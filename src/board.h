@@ -17,6 +17,8 @@ typedef struct{
     uint64_t bKing;
 }chessBoard;
 
-void bitToFen(chessBoard *board, char *fenString);
+void bitToFen(chessBoard board, char *fenString);
+void printBitBoard(chessBoard board);
 void fenToBit(chessBoard *board, char *fenString);
+
 
