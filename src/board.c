@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <inttypes.h>
+#include <string.h>
+#include <ctype.h>
 #include "board.h"
 
 
@@ -101,28 +103,47 @@ void bitToFen(chessBoard board, char *fenString) {
     fenString[1] = 'a';
 }
 
-/**
- * print the bitbaord to be read in the consele 
- */
-void printBitBoard(chessBoard board) {
-    printf("White Pieces:\n");
-    printf("Bishop: %016" PRIx64 "\n", board.wBishop);
-    printf("Rook: %016" PRIx64 "\n", board.wRook);
-    printf("Queen: %016" PRIx64 "\n", board.wQueen);
-    printf("King: %016" PRIx64 "\n", board.wKing);
-    printf("Knight: %016" PRIx64 "\n", board.wKnight);
-    printf("Pawn: %016" PRIx64 "\n", board.wPawn);
 
-    printf("Black Pieces:\n");
-    printf("Bishop: %016" PRIx64 "\n", board.bBishop);
-    printf("Rook: %016" PRIx64 "\n", board.bRook);
-    printf("Queen: %016" PRIx64 "\n", board.bQueen);
-    printf("King: %016" PRIx64 "\n", board.bKing);
-    printf("Knight: %016" PRIx64 "\n", board.bKnight);
-    printf("Pawn: %016" PRIx64 "\n", board.bPawn);
-   
-    
+const char* get_unicode_piece(char piece) {
+    switch (piece) {
+        // White pieces
+        case 'K': return "♔";
+        case 'Q': return "♕";
+        case 'R': return "♖";
+        case 'B': return "♗";
+        case 'N': return "♘";
+        case 'P': return "♙";
+        // Black pieces
+        case 'k': return "♚";
+        case 'q': return "♛";
+        case 'r': return "♜";
+        case 'b': return "♝";
+        case 'n': return "♞";
+        case 'p': return "♟";
+        default: return " ";
+        }
+    }
 
-   
-    printf("\n"); 
+    /**
+     * print the bitbaord to be read in the consele 
+     */
+void printBitBoard(const char *fen) {
+    int rank = 8;
+    printf("\n   a b c d e f g h\n");
+    printf("  +-----------------+\n");
+    printf("%d | ", rank--);
+
+    for (const char *c = fen; *c; ++c) {
+        if (*c == '/') {
+            printf("|\n%d | ", rank--);
+        } else if (isdigit(*c)) {
+            int empty = *c - '0';
+            for (int i = 0; i < empty; i++) {
+                printf("· ");
+            }
+        } else {
+            printf("%s ", get_unicode_piece(*c));
+        }
+    }
+    printf("|\n  +-----------------+\n\n");
 }

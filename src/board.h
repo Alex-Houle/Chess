@@ -18,7 +18,8 @@ typedef struct{
 }chessBoard;
 
 void bitToFen(chessBoard board, char *fenString);
-void printBitBoard(chessBoard board);
+void printBitBoard(const char *fen);
 void fenToBit(chessBoard *board, char *fenString);
+int gameOver(chessBoard board);
 
 

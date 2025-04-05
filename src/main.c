@@ -24,6 +24,12 @@ int main() {
     printf("Give the fen string: ");
     scanf("%s", fenString);
     fenToBit(&board, fenString);
-    printBitBoard(board);
+    printBitBoard(fenString);
+    while(!gameOver(board)) {
+        
+    }
+    
     return 0;
+
+
 }
