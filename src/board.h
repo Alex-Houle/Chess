@@ -20,6 +20,6 @@ typedef struct{
 void bitToFen(chessBoard board, char *fenString);
 void printBitBoard(const char *fen);
 void fenToBit(chessBoard *board, char *fenString);
-int gameOver(chessBoard board);
+//int gameOver(chessBoard board);
 
 

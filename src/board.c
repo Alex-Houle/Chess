@@ -100,7 +100,7 @@ void fenToBit(chessBoard *board, char *fenString) {
  */
 void bitToFen(chessBoard board, char *fenString) {
     board.bBishop ++;
-    fenString[1] = 'a';
+    fenString[1] = 'a'; 
 }
 
 

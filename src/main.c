@@ -18,16 +18,14 @@ int main() {
     board.bKing = 0x1000000000000000ULL;
     board.bPawn = 0x00FF000000000000ULL;
     */
-    chessBoard board;
+    chessBoard ;
     char fenString[64];
 
     printf("Give the fen string: ");
     scanf("%s", fenString);
     fenToBit(&board, fenString);
     printBitBoard(fenString);
-    while(!gameOver(board)) {
-        
-    }
+    
     
     return 0;
 
