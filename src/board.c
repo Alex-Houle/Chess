@@ -1,125 +1,76 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
-#include <string.h>
-#include <ctype.h>
 #include "board.h"
-
 
 /**
  * Take a fen stirng and converts the fenString into bitboards
  */
 void fenToBit(chessBoard *board, char *fenString) {
-    // Initialize the board to zero
-    board->wBishop = 0;
-    board->wRook = 0;
-    board->wKnight = 0;
-    board->wQueen = 0;
-    board->wKing = 0;
-    board->wPawn = 0;
-    board->bBishop = 0;
-    board->bRook = 0;
-    board->bKnight = 0;
-    board->bQueen = 0;
-    board->bKing = 0;
-    board->bPawn = 0;
-
-    char peice = ' ';
-    short place  = 0; 
-    for (int i = 0; i < 64; i++, place++) {
-        peice = fenString[i];
-        if (peice == '/') {
-            place--; // Adjust place for row separator
-            continue; 
-        } else if (peice >= '0' && peice <= '9') {
-            place += peice - '0' - 1; // Skip empty squares
-            continue;
-        } else if (peice == '\0') {
-            break; // End of the string
-        }
-        
-        switch (peice) {
-            case 'B':
-                board->wBishop |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'R':
-                board->wRook |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'N':
-                board->wKnight |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'Q':
-                board->wQueen |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'K':
-                board->wKing |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'P':
-                board->wPawn |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'b':
-                board->bBishop |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'r':
-                board->bRook |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'n':
-                board->bKnight |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'q':
-                board->bQueen |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'k':
-                board->bKing |= (1ULL << (63 - place));
-                place++;
-                break;
-            case 'p':
-                board->bPawn |= (1ULL << (63 - place));
-                place++;
-                break;
-            default:
-                continue; // Ignore empty squares or invalid characters
-        }
-    }
-
+     if (board == NULL || fenString == NULL) {
+        printf("WHYYYYYYYYYYYYYYYY");
+     }
 }
 
-/**
- * Take a bitboard and converts it into a fen string
- * The fen string is stored in the fenString variable
- */
-void bitToFen(chessBoard board, char *fenString) {
-    board.bBishop ++;
-    fenString[1] = 'a'; 
+char get_piece_at(uint64_t mask, int index, char piece) {
+    return (mask >> index) & 1 ? piece : 0;
+}
+
+void bitToFen(chessBoard* board, char* output) {
+    char fen[100] = {0};
+    int empty = 0;
+
+    for (int rank = 7; rank >= 0; rank--) {
+        for (int file = 0; file < 8; file++) {
+            int index = rank * 8 + file;
+            char piece = 0;
+            if ((piece = get_piece_at(board->wPawn, index, 'P')) ||
+                (piece = get_piece_at(board->wKnight, index, 'N')) ||
+                (piece = get_piece_at(board->wBishop, index, 'B')) ||
+                (piece = get_piece_at(board->wRook, index, 'R')) ||
+                (piece = get_piece_at(board->wQueen, index, 'Q')) ||
+                (piece = get_piece_at(board->wKing, index, 'K')) ||
+                (piece = get_piece_at(board->bPawn, index, 'p')) ||
+                (piece = get_piece_at(board->bKnight, index, 'n')) ||
+                (piece = get_piece_at(board->bBishop, index, 'b')) ||
+                (piece = get_piece_at(board->bRook, index, 'r')) ||
+                (piece = get_piece_at(board->bQueen, index, 'q')) ||
+                (piece = get_piece_at(board->bKing, index, 'k'))) {
+                if (empty > 0) {
+                    char num[2] = {(char)(empty + '0'), '\0'};
+                    strcat(fen, num);
+                    empty = 0;
+                }
+                strncat(fen, &piece, 1);
+            } else {
+                empty++;
+            }
+        }
+        if (empty > 0) {
+            char num[2] = {(char)(empty + '0'), '\0'};
+            strcat(fen, num);
+            empty = 0;
+        }
+        if (rank > 0) strcat(fen, "/");
+    }
+
+    strcpy(output, fen);
 }
 
 
 const char* get_unicode_piece(char piece) {
     switch (piece) {
         // White pieces
-        case 'K': return "♔";
-        case 'Q': return "♕";
-        case 'R': return "♖";
-        case 'B': return "♗";
-        case 'N': return "♘";
-        case 'P': return "♙";
+        case 'k': return "♔";
+        case 'q': return "♕";
+        case 'r': return "♖";
+        case 'b': return "♗";
+        case 'n': return "♘";
+        case 'p': return "♙";
         // Black pieces
-        case 'k': return "♚";
-        case 'q': return "♛";
-        case 'r': return "♜";
-        case 'b': return "♝";
-        case 'n': return "♞";
-        case 'p': return "♟";
+        case 'K': return "♚";
+        case 'Q': return "♛";
+        case 'R': return "♜";
+        case 'B': return "♝";
+        case 'N': return "♞";
+        case 'P': return "♟";
         default: return " ";
         }
     }
@@ -127,11 +78,15 @@ const char* get_unicode_piece(char piece) {
     /**
      * print the bitbaord to be read in the consele 
      */
-void printBitBoard(const char *fen) {
+void printBitBoard(chessBoard* board) {
+    char fen[50];
+    bitToFen(board,fen);
+
     int rank = 8;
     printf("\n   a b c d e f g h\n");
     printf("  +-----------------+\n");
     printf("%d | ", rank--);
+
 
     for (const char *c = fen; *c; ++c) {
         if (*c == '/') {
@@ -146,4 +101,8 @@ void printBitBoard(const char *fen) {
         }
     }
     printf("|\n  +-----------------+\n\n");
+}
+
+int gameover(chessBoard *board) { 
+    return 1;
 }
