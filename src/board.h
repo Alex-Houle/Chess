@@ -35,6 +35,7 @@ typedef struct {
 
     char toMove;
 
+    uint64_t EmptySquares;
 } gameState;
 
 // Function declarations
@@ -43,5 +44,7 @@ void bitToFen(chessBoard* board, char* output);
 void printBitBoard(chessBoard* board);
 int gameover(chessBoard* board);
 void gameStart(chessBoard*, gameState*);
+void move(chessBoard* , gameState* , int , int );
+
 
 #endif // BOARD_H

@@ -19,13 +19,16 @@ int main() {
     int i = 0;
     int from, to; 
     do { 
+        printBitBoard(board);
+        
         printf("Peice to move: ");
         scanf("%d", &from);
 
         printf("Move to: ");
         scanf("%d", &to);
 
-        printBitBoard(board);
+        move(board, game, from, to);
+
     } while(gameover(board) && from >= 0 && from <= 63 && to >= 0 && to <= 63);
 
     
