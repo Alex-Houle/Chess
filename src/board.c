@@ -114,7 +114,7 @@
 
 
     int gameover(chessBoard *board) { 
-        return 1;
+        return board->wKing != 0 && board->bKing != 0;
     }
 
     void gameStart(chessBoard* board, gameState* game) {

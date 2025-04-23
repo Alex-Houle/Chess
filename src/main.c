@@ -1,4 +1,6 @@
 #include "board.h"
+#include "types.h"
+
 
 
 int main() {
@@ -16,13 +18,15 @@ int main() {
     gameStart(board,game);
     printBitBoard(board);
     
-    int i = 0;
     int from, to; 
     do { 
         printBitBoard(board);
         
         printf("Peice to move: ");
         scanf("%d", &from);
+        if (from < 0 || from > 63) {
+            break;
+        }
 
         printf("Move to: ");
         scanf("%d", &to);

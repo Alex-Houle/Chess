@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "board.h"
-
+#include "types.h"
 
 

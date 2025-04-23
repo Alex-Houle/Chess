@@ -9,34 +9,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-// Struct representing the chess board using bitboards
-typedef struct {
-    uint64_t wPawn;
-    uint64_t wKnight;
-    uint64_t wBishop;
-    uint64_t wRook;
-    uint64_t wQueen;
-    uint64_t wKing;
-    
-    uint64_t bPawn;
-    uint64_t bKnight;
-    uint64_t bBishop;
-    uint64_t bRook;
-    uint64_t bQueen;
-    uint64_t bKing;
-} chessBoard;
+#include "rules.h"
+#include "types.h"
 
-typedef struct {
-    bool wKingCastle;
-    bool wQueenCastle;
-
-    bool bKingCastle;
-    bool bQueenCastle;
-
-    char toMove;
-
-    uint64_t EmptySquares;
-} gameState;
 
 // Function declarations
 void fenToBit(chessBoard* board, char* fenString);
@@ -48,3 +23,4 @@ void move(chessBoard* , gameState* , int , int );
 
 
 #endif // BOARD_H
+    
