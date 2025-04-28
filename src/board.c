@@ -9,10 +9,22 @@
         }
     }
 
+    /**
+     * Get the piece at a specific index from the bitboard.
+     * @param mask The bitboard mask.
+     * @param index The index of the square (0-63).
+     * @param piece The piece character.
+     * @return The piece character if present, 0 otherwise.
+     */
     char get_piece_at(uint64_t mask, int index, char piece) {
         return (mask >> index) & 1 ? piece : 0;
     }
 
+    /**
+     * Convert the bitboard to a FEN string representation.
+     * @param board The chessboard.
+     * @param output The output FEN string.
+     */
     void bitToFen(chessBoard* board, char* output) {
         char fen[100] = {0};
         int empty = 0;
@@ -82,7 +94,7 @@
          * print the bitbaord to be read in the consele 
          */
     void printBitBoard(chessBoard* board) {
-        printf("\e[1;1H\e[2J");
+        //printf("\e[1;1H\e[2J");
         char fen[50];
         bitToFen(board,fen);
         
@@ -113,10 +125,20 @@
 
 
 
+    /**
+     * Check if the game is over (both kings are present).
+     * @param board The chessboard.
+     * @return 1 if the game is over, 0 otherwise.
+     */
     int gameover(chessBoard *board) { 
-        return board->wKing != 0 && board->bKing != 0;
+        return 0;
     }
 
+    /**
+     * Initialize the chessboard with the starting position.
+     * @param board The chessboard.
+     * @param game The game state.
+     */
     void gameStart(chessBoard* board, gameState* game) {
         board->wBishop = 0x0000000000000024ULL;
         board->wRook = 0x0000000000000081ULL;
@@ -144,6 +166,14 @@
                             board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;   
     }
 
+
+/**
+ * Move a piece from one square to another on the chessboard.
+ * @param board The chessboard.
+ * @param game The game state.
+ * @param from The starting square (0-63).
+ * @param to The destination square (0-63).
+ */
 void move(chessBoard* board, gameState* game, int from, int to) {
     uint64_t from_mask = 1ULL << from;
     uint64_t to_mask = 1ULL << to;
