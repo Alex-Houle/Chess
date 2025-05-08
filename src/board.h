@@ -1,5 +1,4 @@
 #ifndef BOARD_H
-#define BOARD_H
 
 #include <stdio.h>
 #include <stdint.h>
@@ -9,35 +8,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "type.h"
+
 // Struct representing the chess board using bitboards
-typedef struct {
-    uint64_t wPawn;
-    uint64_t wKnight;
-    uint64_t wBishop;
-    uint64_t wRook;
-    uint64_t wQueen;
-    uint64_t wKing;
-    
-    uint64_t bPawn;
-    uint64_t bKnight;
-    uint64_t bBishop;
-    uint64_t bRook;
-    uint64_t bQueen;
-    uint64_t bKing;
-} chessBoard;
-
-typedef struct {
-    bool wKingCastle;
-    bool wQueenCastle;
-
-    bool bKingCastle;
-    bool bQueenCastle;
-
-    char toMove;
-
-    uint64_t EmptySquares;
-} gameState;
-
 // Function declarations
 void fenToBit(chessBoard* board, char* fenString);
 void bitToFen(chessBoard* board, char* output);
