@@ -8,4 +8,5 @@
 
 #include "type.h"
 
+void moves(chessBoard*);
 

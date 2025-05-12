@@ -1,6 +1,6 @@
 #include "board.h"
-
-
+#include "type.h"
+#include "rules.h"
 int main() {
     
     chessBoard *board = malloc(sizeof(chessBoard));
@@ -26,7 +26,7 @@ int main() {
 
         printf("Move to: ");
         scanf("%d", &to);
-
+        moves(board);
         move(board, game, from, to);
 
     } while(gameover(board) && from >= 0 && from <= 63 && to >= 0 && to <= 63);

@@ -9,7 +9,7 @@
         }
     }
 
-    char get_piece_at(uint64_t mask, int index, char piece) {
+char get_piece_at(uint64_t mask, int index, char piece) {
         return (mask >> index) & 1 ? piece : 0;
     }
 
