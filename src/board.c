@@ -82,7 +82,9 @@ char get_piece_at(uint64_t mask, int index, char piece) {
          * print the bitbaord to be read in the consele 
          */
     void printBitBoard(chessBoard* board) {
-        printf("\e[1;1H\e[2J");
+        // Clear the board       
+        // printf("\e[1;1H\e[2J");
+        
         char fen[50];
         bitToFen(board,fen);
         
