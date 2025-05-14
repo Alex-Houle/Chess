@@ -6,7 +6,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <stdbool.h>
+#include <stdbool.h>    
 
 
 typedef struct {
@@ -23,6 +23,12 @@ typedef struct {
   uint64_t bRook;
   uint64_t bQueen;
   uint64_t bKing;
+
+  uint64_t empty;
+
+  uint64_t blackPeices;
+  uint64_t whitePeices; 
+
 } chessBoard;
 
 typedef struct {
@@ -34,7 +40,6 @@ typedef struct {
 
   char toMove;
 
-  uint64_t EmptySquares;
 } gameState;
 
 #endif

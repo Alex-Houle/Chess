@@ -14,9 +14,8 @@ int main() {
     }
     
     gameStart(board,game);
-    printBitBoard(board);
     
-    int i = 0;
+
     int from, to; 
     do { 
         printBitBoard(board);
@@ -26,8 +25,8 @@ int main() {
 
         printf("Move to: ");
         scanf("%d", &to);
-        moves(board);
         move(board, game, from, to);
+        
 
     } while(gameover(board) && from >= 0 && from <= 63 && to >= 0 && to <= 63);
 

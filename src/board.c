@@ -142,8 +142,12 @@ char get_piece_at(uint64_t mask, int index, char piece) {
         game->toMove = 'w';
 
 
-        game->EmptySquares = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
+        board->empty = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
                             board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;   
+        board->blackPeices = board->bBishop | board->bKing | board->bKnight | board -> bPawn | board->bRook | board->bQueen; 
+    
+        board->whitePeices = board->wBishop | board->wKing | board->wKnight | board -> wPawn | board->wRook | board->wQueen; 
+ 
     }
 
 void move(chessBoard* board, gameState* game, int from, int to) {
@@ -164,5 +168,29 @@ void move(chessBoard* board, gameState* game, int from, int to) {
         }
     }
 
+    
+    board->empty = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
+                      board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;   
+ 
     game->toMove = (game->toMove == 'w') ? 'b' : 'w';
+    
+    board->blackPeices = board->bBishop | board->bKing | board->bKnight | board -> bPawn | board->bRook | board->bQueen; 
+    
+    board->whitePeices = board->wBishop | board->wKing | board->wKnight | board -> wPawn | board->wRook | board->wQueen; 
+ 
 }
+
+
+// This is just for debugging
+void print_board(uint64_t bitboard) {
+    for (int rank = 7; rank >=   0; rank--) {
+        for (int file = 0; file < 8; file++) {
+            int index = rank * 8 + file;
+            int bit = (bitboard >> index) & 1;
+            printf("%d ", bit);
+        }
+        printf("\n");
+    }
+}
+
+

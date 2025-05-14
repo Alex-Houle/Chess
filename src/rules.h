@@ -8,5 +8,5 @@
 
 #include "type.h"
 
-void moves(chessBoard*);
+void moves(chessBoard*, gameState*);
 
