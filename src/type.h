@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <stdbool.h>    
 
-
 typedef struct {
   uint64_t wPawn;
   uint64_t wKnight;

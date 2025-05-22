@@ -25,8 +25,9 @@ int main() {
 
         printf("Move to: ");
         scanf("%d", &to);
+
         move(board, game, from, to);
-        
+        moves(board, game);
 
     } while(gameover(board) && from >= 0 && from <= 63 && to >= 0 && to <= 63);
 
