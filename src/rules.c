@@ -15,22 +15,36 @@ uint64_t knightMoves(uint64_t knights) {
     return (h1 << 16) | (h1 >> 16) | (h2 << 8) | (h2 >> 8);
 }
 
-uint64_t pawnMoves(uint64_t cPawn, uint64_t oPawn, uint64_t empty, uint64_t enemy) {
+uint64_t pawnMoves(uint64_t cPawn, uint64_t empty, uint64_t enemy) {
     uint64_t one = (cPawn << 8) & ~enemy ;
     uint64_t two = (cPawn & 0xFF00) << 16 & ~enemy;
     two &= one << 8;
     uint64_t dOne = cPawn << 7 & enemy; 
     uint64_t dTwo = cPawn << 9 & enemy;
-    print_board(one | two); 
-    return (one | two) & ~empty; 
+    return ((one | two) & ~empty) | dOne | dTwo; 
 }
-        
+
+// helper function to make the code more readable
+uint64_t possibleKing(uint64_t king) {
+    return king << 1 | king >> 1 | king << 7 | king >> 7 | king << 8 | king >> 8 | king << 9 | king >> 9;
+}
+
+// possible change is to make the function take where the enemy attacks
+// that takes memory though 
+uint64_t kingMoves(uint64_t king) {
+    uint64_t possible = possibleKing(king);
+    print_board(possible);
+    printf("%" PRId64 "\n", possible);
+    return possibleKing(king); 
+}
+
 // todo make this not void
 // just test it out rn 
 void moves(chessBoard* board, gameState* game) {
     if (1) {
-        printf("%" PRId64 "\n", pawnMoves(board->wPawn, board->bPawn, board->empty ,board->blackPeices));
+        printf("%" PRId64 "\n", pawnMoves(board->wPawn, board->empty ,board->blackPeices));
     } else { 
-        printf("%" PRId64 "\n", pawnMoves(board->bPawn, board->bPawn, board->empty, board->whitePeices ));
+        printf("%" PRId64 "\n", pawnMoves(board->bPawn, board->empty, board->whitePeices ));
     }
+    kingMoves(board->wKing);
 }

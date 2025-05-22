@@ -1,0 +1,47 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-c",
+      "-o",
+      "src/board.o",
+      "src/board.c"
+    ],
+    "directory": "/home/alex/Documents/projects/Chess",
+    "file": "/home/alex/Documents/projects/Chess/src/board.c",
+    "output": "/home/alex/Documents/projects/Chess/src/board.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-c",
+      "-o",
+      "src/main.o",
+      "src/main.c"
+    ],
+    "directory": "/home/alex/Documents/projects/Chess",
+    "file": "/home/alex/Documents/projects/Chess/src/main.c",
+    "output": "/home/alex/Documents/projects/Chess/src/main.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Wall",
+      "-Wextra",
+      "-std=c11",
+      "-c",
+      "-o",
+      "src/rules.o",
+      "src/rules.c"
+    ],
+    "directory": "/home/alex/Documents/projects/Chess",
+    "file": "/home/alex/Documents/projects/Chess/src/rules.c",
+    "output": "/home/alex/Documents/projects/Chess/src/rules.o"
+  }
+]
