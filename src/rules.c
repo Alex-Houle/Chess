@@ -24,27 +24,61 @@ uint64_t pawnMoves(uint64_t cPawn, uint64_t empty, uint64_t enemy) {
     return ((one | two) & ~empty) | dOne | dTwo; 
 }
 
-// helper function to make the code more readable
+// helper function to make the code more readable  
 uint64_t possibleKing(uint64_t king) {
-    return king << 1 | king >> 1 | king << 7 | king >> 7 | king << 8 | king >> 8 | king << 9 | king >> 9;
+    uint64_t notAFile = ~FILE_A;
+    uint64_t notHFile = ~FILE_H;
+
+    uint64_t attacks = 0;
+
+    attacks |= (king & notAFile) >> 1;      // West
+    attacks |= (king & notHFile) << 1;      // East
+    attacks |= (king & ~FILE_A) >> 9;       // SW
+    attacks |= king >> 8;                   // South
+    attacks |= (king & ~FILE_H) >> 7;       // SE
+    attacks |= (king & ~FILE_A) << 7;       // NW
+    attacks |= king << 8;                   // North
+    attacks |= (king & ~FILE_H) << 9;       // NE
+
+    return attacks;
 }
+ 
 
 // possible change is to make the function take where the enemy attacks
 // that takes memory though 
-uint64_t kingMoves(uint64_t king) {
+uint64_t kingMoves(uint64_t king, uint64_t friends) {
     uint64_t possible = possibleKing(king);
-    print_board(possible);
-    printf("%" PRId64 "\n", possible);
-    return possibleKing(king); 
+    return possible & ~friends; 
 }
+
+uint64_t reverse(uint64_t bb) {
+    uint64_t reversed = 0ull;
+    for (int i = 0; i < 64; i++) {
+        reversed <<= 1;
+        if ((bb & 1 ) == 1) {
+            reversed ^=1;
+        }
+        bb >>= 1;
+    }
+    return reversed; 
+}
+
 
 // todo make this not void
 // just test it out rn 
 void moves(chessBoard* board, gameState* game) {
-    if (1) {
+    // this is to stop com
+    if (game->bKingCastle == 0) {
+        printf("Problem");
+    }
+    
+    if (0) {
         printf("%" PRId64 "\n", pawnMoves(board->wPawn, board->empty ,board->blackPeices));
     } else { 
-        printf("%" PRId64 "\n", pawnMoves(board->bPawn, board->empty, board->whitePeices ));
+       // printf("%" PRId64 "\n", pawnMoves(board->bPawn, board->empty, board->whitePeices ));
     }
-    kingMoves(board->wKing);
+    printf("%" PRId64 "\b", reverse(kingMoves(board->wKing, board->whitePeices)));
+    printf("\n");
+    print_board(reverse(reverse(kingMoves(board->wKing, board->whitePeices))));
+    
 }
