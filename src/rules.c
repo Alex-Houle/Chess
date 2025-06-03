@@ -51,6 +51,7 @@ uint64_t kingMoves(uint64_t king, uint64_t friends) {
     return possible & ~friends; 
 }
 
+// reverse the bit in a uint64_t
 uint64_t reverse(uint64_t bb) {
     uint64_t reversed = 0ull;
     for (int i = 0; i < 64; i++) {
