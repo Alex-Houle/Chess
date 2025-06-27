@@ -159,4 +159,4 @@ uint64_t whitePawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
 }
 
 
-// Note: promotion, castling, en passant logic should be added separately
+// promotion, castling, en passant logic should be added 
