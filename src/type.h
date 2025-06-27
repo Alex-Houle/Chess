@@ -11,7 +11,13 @@
 #define BIT(sq) (1ULL << (sq))
 
 
+
 typedef struct {
+    int row;
+    int col;
+} ChessPosition;
+
+  typedef struct {
     uint64_t lower;   
     uint64_t upper;   
     uint64_t lineEx;  
