@@ -19,4 +19,4 @@ void gameStart(chessBoard*, gameState*);
 void move(chessBoard* , gameState* , int , int );
 void print_board(uint64_t bitboard);
 
-#endif // BOARD_H
+#endif // BOARD_H 

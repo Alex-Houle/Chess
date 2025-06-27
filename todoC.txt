@@ -1,4 +1,4 @@
-1. create the board represetnion and find a way to display
+1. create the board represetnion and find a w ay to display
     a. create methods to go from fen string to bit board and vice versa(maybe be useful later or now)
 2. create chess logic(moves and funny situations like promotions en pesant and catleing )
 3. create min max algorthim 
@@ -7,4 +7,3 @@
 6. do logic for pass pawns and differnt stage of game. 
 7. make the program multi threaded so it is faster. 
 8. make a front end it is pretty and more fun to wacth 
-9. use magic bitboard to make the program faster (make sure we cant capture friendly peices)

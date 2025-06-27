@@ -6,7 +6,16 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <stdbool.h>    
+#include <stdbool.h>
+
+#define BIT(sq) (1ULL << (sq))
+
+
+typedef struct {
+    uint64_t lower;   
+    uint64_t upper;   
+    uint64_t lineEx;  
+} SMasks;
 
 typedef struct {
   uint64_t wPawn;
