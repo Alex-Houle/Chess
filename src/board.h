@@ -10,7 +10,6 @@
 
 #include "type.h"
 
-
 void fenToBit(chessBoard* board, char* fenString);
 void bitToFen(chessBoard* board, char* output);
 void printBitBoard(chessBoard* board);

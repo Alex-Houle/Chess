@@ -1,6 +1,8 @@
+// src/main.c
 #include "board.h"
 #include "type.h"
 #include "rules.h"
+#include "sdl_utils.h"
 
 int main() {
     chessBoard *board = malloc(sizeof(chessBoard));
@@ -16,63 +18,62 @@ int main() {
     }
 
     gameStart(board, game);
+    
+    initializeSDL();
+    loadPieceTextures();
+    
+    SDL_Event e;
+    int selectedSquare = -1;
+    int running = 1;
+    
+    while (running) {
+        while (SDL_PollEvent(&e) != 0) {
+            if (e.type == SDL_QUIT) {
+                running = 0;
+            } else if (e.type == SDL_MOUSEBUTTONDOWN) {
+                if (e.button.button == SDL_BUTTON_LEFT) {
+                    int x = e.button.x / SQUARE_SIZE;
+                    int y = 7 - (e.button.y / SQUARE_SIZE);
+                    int clickedSquare = y * 8 + x;
+                    // Add this debug print in your mouse click handler:
+                    printf("Clicked square: %d (row: %d, col: %d)\n", 
+                        clickedSquare, 
+                        clickedSquare/8, 
+                        clickedSquare%8);
+                    if (selectedSquare == -1) {
+                        selectedSquare = clickedSquare;
+                    } else {
+                        uint64_t from_bb = BIT(selectedSquare);
+                        uint64_t to_bb = BIT(clickedSquare);
+                        uint64_t moves_bb = 0;
 
-    int from, to;
-    do {
-        printBitBoard(board);
+                        if (game->toMove == 'w') {
+                            if (board->wPawn & from_bb) {
+                                moves_bb = whitePawnMovesBB((ChessPosition){selectedSquare / 8, selectedSquare % 8},
+                                                            board->empty,
+                                                            board->blackPeices);
+                            }
+                            // ... rest of your move generation logic
+                        }
 
-        printf("Piece to move: ");
-        scanf("%d", &from);
-
-        printf("Move to: ");
-        scanf("%d", &to);
-
-        uint64_t from_bb = BIT(from);
-        uint64_t to_bb = BIT(to);
-        uint64_t moves_bb = 0;
-
-        // Determine whose turn it is and what piece is at `from`
-        if (game->toMove == 'w') {
-            if (board->wPawn & from_bb) {
-                moves_bb = whitePawnMovesBB((ChessPosition){from / 8, from % 8},
-                                            board->empty,
-                                            board->blackPeices);
-            } else if (board->wKnight & from_bb) {
-                moves_bb = knightMovesBB((ChessPosition){from / 8, from % 8});
-            } else if (board->wBishop & from_bb) {
-                moves_bb = bishopMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->wRook & from_bb) {
-                moves_bb = rookMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->wQueen & from_bb) {
-                moves_bb = queenMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->wKing & from_bb) {
-                moves_bb = kingMovesBB((ChessPosition){from / 8, from % 8});
-            }
-        } else if (game->toMove == 'b') {
-            if (board->bPawn & from_bb) {
-                // you'd need to write blackPawnMovesBB() similarly to white
-                // moves_bb = blackPawnMovesBB(...);
-            } else if (board->bKnight & from_bb) {
-                moves_bb = knightMovesBB((ChessPosition){from / 8, from % 8});
-            } else if (board->bBishop & from_bb) {
-                moves_bb = bishopMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->bRook & from_bb) {
-                moves_bb = rookMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->bQueen & from_bb) {
-                moves_bb = queenMovesBB((ChessPosition){from / 8, from % 8}, board->blackPeices | board->whitePeices);
-            } else if (board->bKing & from_bb) {
-                moves_bb = kingMovesBB((ChessPosition){from / 8, from % 8});
+                        if (moves_bb & to_bb) {
+                            move(board, game, selectedSquare, clickedSquare);
+                        } else {
+                            printf("Illegal move!\n");
+                        }
+                        
+                        selectedSquare = -1;
+                    }
+                }
             }
         }
-
-        if (moves_bb & to_bb) {
-            move(board, game, from, to);
-        } else {
-            printf("Illegal move!\n");
-        }
-
-    } while (gameover(board) && from >= 0 && from <= 63 && to >= 0 && to <= 63);
-
+        
+        renderBoard(board, selectedSquare);
+        renderStatus(game);
+        SDL_Delay(16);
+    }
+    
+    cleanupSDL();
     free(board);
     free(game);
     return 0;

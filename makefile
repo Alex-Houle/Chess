@@ -1,25 +1,18 @@
-# Makefile for compiling board.c
-
-SRC_DIR = src
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11
-TARGET = board
-OBJ = $(SRC_DIR)/board.o $(SRC_DIR)/main.o $(SRC_DIR)/rules.o
+CFLAGS = -Wall -Wextra -std=c11 `sdl2-config --cflags`
+LDFLAGS = `sdl2-config --libs` -lSDL2_image
 
-all: $(TARGET)
+SRC = src/main.c src/board.c src/rules.c src/sdl_utils.c
+OBJ = $(SRC:.c=.o)
+EXEC = chess
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+all: $(EXEC)
 
-$(SRC_DIR)/board.o: $(SRC_DIR)/board.c $(SRC_DIR)/board.h
+$(EXEC): $(OBJ)
+	$(CC) $(CFLAGS) $(OBJ) -o $@ $(LDFLAGS)
+
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
-
-$(SRC_DIR)/rules.o: $(SRC_DIR)/rules.c $(SRC_DIR)/rules.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-
 
 clean:
-	rm -f $(OBJ) $(TARGET)
-
-.PHONY: all clean
+	rm -f $(OBJ) $(EXEC) src/*.o

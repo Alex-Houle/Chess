@@ -11,7 +11,6 @@
 #define RANK_7 0x00FF000000000000ULL
 #define RANK_8 0xFF00000000000000ULL
 
-
 typedef struct {
     ChessPosition from;
     ChessPosition to;
@@ -158,5 +157,27 @@ uint64_t whitePawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
     return moves;
 }
 
+uint64_t blackPawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
+    uint64_t moves = 0ULL;
+    int row = pos.row;
+    int col = pos.col;
+    int bit = positionToBit(pos);
+
+    uint64_t from = 1ULL << bit;
+
+    uint64_t one_step = (from >> 8) & empty;
+    moves |= one_step;
+
+    if (row == 6 && one_step) {
+        uint64_t two_step = (from >> 16) & empty & (empty >> 8);
+        moves |= two_step;
+    }
+
+    if (col > 0) moves |= (from >> 9) & enemy;
+    if (col < 7) moves |= (from >> 7) & enemy;
+
+    return moves;
+}
+    
 
 // promotion, castling, en passant logic should be added 

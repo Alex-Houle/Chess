@@ -10,8 +10,6 @@
 
 #define BIT(sq) (1ULL << (sq))
 
-
-
 typedef struct {
     int row;
     int col;
