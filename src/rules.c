@@ -41,32 +41,36 @@ void bitboardToPositions(uint64_t bitboard, ChessPosition* out, int* count) {
 
 uint64_t rookMovesBB(ChessPosition position, uint64_t occupied) {
     uint64_t attacks = 0ULL;
-    int bit = positionToBit(position);
     int r = position.row;
     int c = position.col;
 
-    // Horizontal
-    for (int i = c - 1; i >= 0; i--) {
-        int idx = r * 8 + i;
-        attacks |= (1ULL << idx);
-        if (occupied & (1ULL << idx)) break;
-    }
-    for (int i = c + 1; i < 8; i++) {
-        int idx = r * 8 + i;
-        attacks |= (1ULL << idx);
-        if (occupied & (1ULL << idx)) break;
-    }
-
-    // Vertical
-    for (int i = r - 1; i >= 0; i--) {
-        int idx = i * 8 + c;
-        attacks |= (1ULL << idx);
-        if (occupied & (1ULL << idx)) break;
-    }
+    // Up
     for (int i = r + 1; i < 8; i++) {
         int idx = i * 8 + c;
-        attacks |= (1ULL << idx);
-        if (occupied & (1ULL << idx)) break;
+        uint64_t mask = 1ULL << idx;
+        attacks |= mask;
+        if (occupied & mask) break;
+    }
+    // Down
+    for (int i = r - 1; i >= 0; i--) {
+        int idx = i * 8 + c;
+        uint64_t mask = 1ULL << idx;
+        attacks |= mask;
+        if (occupied & mask) break;
+    }
+    // Right
+    for (int i = c + 1; i < 8; i++) {
+        int idx = r * 8 + i;
+        uint64_t mask = 1ULL << idx;
+        attacks |= mask;
+        if (occupied & mask) break;
+    }
+    // Left
+    for (int i = c - 1; i >= 0; i--) {
+        int idx = r * 8 + i;
+        uint64_t mask = 1ULL << idx;
+        attacks |= mask;
+        if (occupied & mask) break;
     }
 
     return attacks;
@@ -85,8 +89,9 @@ uint64_t bishopMovesBB(ChessPosition position, uint64_t occupied) {
         int nc = c + dc[d];
         while (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
             int idx = nr * 8 + nc;
-            attacks |= (1ULL << idx);
-            if (occupied & (1ULL << idx)) break;
+            uint64_t mask = 1ULL << idx;
+            attacks |= mask;
+            if (occupied & mask) break;
             nr += dr[d];
             nc += dc[d];
         }
@@ -154,6 +159,9 @@ uint64_t whitePawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
     if (col > 0) moves |= (from << 7) & enemy; // capture left
     if (col < 7) moves |= (from << 9) & enemy; // capture right
 
+    // En passant logic needs information from previous move, which isn't in this function's scope.
+    // It should be handled in the 'move' function when checking for a valid move.
+
     return moves;
 }
 
@@ -176,8 +184,8 @@ uint64_t blackPawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
     if (col > 0) moves |= (from >> 9) & enemy;
     if (col < 7) moves |= (from >> 7) & enemy;
 
+    // En passant logic needs information from previous move, which isn't in this function's scope.
+    // It should be handled in the 'move' function when checking for a valid move.
+
     return moves;
 }
-    
-
-// promotion, castling, en passant logic should be added 

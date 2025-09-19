@@ -79,7 +79,7 @@ const char* get_unicode_piece(char piece) {
     }
 
     /**
-        * print the bitbaord to be read in the consele 
+        * print the bitboard to be read in the console 
         */
 void printBitBoard(chessBoard* board) {
     // Clear the board       
@@ -97,7 +97,7 @@ void printBitBoard(chessBoard* board) {
 
 
 
-    // prints out the acutal board 
+    // prints out the actual board 
     for (const char *c = fen; *c; ++c) {
         if (*c == '/') {
             printf("|\n%d | ", rank--);
@@ -120,12 +120,12 @@ int gameover(chessBoard *board) {
 }
 
 void gameStart(chessBoard* board, gameState* game) {
+        
     board->wBishop = 0x0000000000000024ULL;
     board->wRook = 0x0000000000000081ULL;
     board->wKnight = 0x0000000000000042ULL;
     board->wQueen = 0x0000000000000008ULL;
     board->wKing = 0x0000000000000010ULL;
-    board->wPawn = 0x000000000000FF00ULL;
     board->bBishop = 0x2400000000000000ULL;
     board->bRook = 0x8100000000000000ULL;
     board->bKnight = 0x4200000000000000ULL;
@@ -142,8 +142,8 @@ void gameStart(chessBoard* board, gameState* game) {
     game->toMove = 'w';
 
 
-    board->empty = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
-                        board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;   
+    board->empty = ~(board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
+                        board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing); 
     board->blackPeices = board->bBishop | board->bKing | board->bKnight | board -> bPawn | board->bRook | board->bQueen; 
 
     board->whitePeices = board->wBishop | board->wKing | board->wKnight | board -> wPawn | board->wRook | board->wQueen; 
@@ -159,25 +159,26 @@ void move(chessBoard* board, gameState* game, int from, int to) {
         &board->bPawn, &board->bKnight, &board->bBishop, &board->bRook, &board->bQueen, &board->bKing
     };
 
+    // Remove any piece on the destination square
+    for (int i = 0; i < 12; i++) {
+        *pieces[i] &= ~to_mask;
+    }
+
+    // Move the piece from 'from' to 'to'
     for (int i = 0; i < 12; i++) {
         if (*pieces[i] & from_mask) {
             *pieces[i] &= ~from_mask; 
             *pieces[i] |= to_mask;    
-        } else {
-            *pieces[i] &= ~to_mask;   
         }
     }
-
     
-    board->empty = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing |
-                      board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;   
+    // Recalculate combined bitboards
+    board->whitePeices = board->wPawn | board->wKnight | board->wBishop | board->wRook | board->wQueen | board->wKing;
+    board->blackPeices = board->bPawn | board->bKnight | board->bBishop | board->bRook | board->bQueen | board->bKing;
+    board->empty = ~(board->whitePeices | board->blackPeices);
  
+    // Flip the turn
     game->toMove = (game->toMove == 'w') ? 'b' : 'w';
-    
-    board->blackPeices = board->bBishop | board->bKing | board->bKnight | board -> bPawn | board->bRook | board->bQueen; 
-    
-    board->whitePeices = board->wBishop | board->wKing | board->wKnight | board -> wPawn | board->wRook | board->wQueen; 
- 
 }
 
 
@@ -192,5 +193,3 @@ void print_board(uint64_t bitboard) {
         printf("\n");
     }
 }
-
-

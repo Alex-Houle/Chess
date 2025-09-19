@@ -1,10 +1,8 @@
-// src/rules.h
 #ifndef RULES_H
 #define RULES_H
 
 #include "type.h"
 
-// Function declarations only (no implementations)
 int positionToBit(ChessPosition pos);
 ChessPosition bitToPosition(int bit);
 void bitboardToPositions(uint64_t bitboard, ChessPosition* out, int* count);

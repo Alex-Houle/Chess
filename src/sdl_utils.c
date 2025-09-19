@@ -90,7 +90,7 @@ void renderBoard(chessBoard* board, int selectedSquare) {
     SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x20, 0xFF);
     SDL_RenderClear(renderer);
     
-    for (int row = 0; row < 8; row++) {
+        for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
             int square = row * 8 + col;
             SDL_Rect rect = {col * SQUARE_SIZE, (7 - row) * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE};
@@ -116,6 +116,7 @@ void renderBoard(chessBoard* board, int selectedSquare) {
             else if (board->wRook & mask) pieceType = WHITE_ROOK;
             else if (board->wQueen & mask) pieceType = WHITE_QUEEN;
             else if (board->wKing & mask) pieceType = WHITE_KING;
+
             else if (board->bPawn & mask) pieceType = BLACK_PAWN;
             else if (board->bKnight & mask) pieceType = BLACK_KNIGHT;
             else if (board->bBishop & mask) pieceType = BLACK_BISHOP;
