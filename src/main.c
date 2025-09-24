@@ -3,6 +3,7 @@
 #include "type.h"
 #include "rules.h"
 #include "sdl_utils.h"
+#include <stdbool.h>
 
 int main() {
     chessBoard *board = malloc(sizeof(chessBoard));
@@ -24,12 +25,12 @@ int main() {
     
     SDL_Event e;
     int selectedSquare = -1;
-    int running = 1;
+    bool isGameOver = false;
     
-    while (running) {
+    while (!isGameOver) {
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
-                running = 0;
+                isGameOver = true;
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {
                 if (e.button.button == SDL_BUTTON_LEFT) {
                     int x = e.button.x / SQUARE_SIZE;
@@ -94,7 +95,26 @@ int main() {
 
                         // Check if the clicked square is a valid move
                         if (moves_bb & to_bb) {
-                            move(board, game, selectedSquare, clickedSquare);
+                             // Temporarily make the move on a copy of the board to check for check
+                            chessBoard temp_board = *board;
+                            gameState temp_game = *game;
+                            move(&temp_board, &temp_game, selectedSquare, clickedSquare);
+
+                            if (!isKingInCheck(&temp_board, game->toMove)) {
+                                move(board, game, selectedSquare, clickedSquare);
+                                // After a move, check for game end conditions
+                                if (!hasLegalMoves(board, game)) {
+                                    if (isKingInCheck(board, game->toMove)) {
+                                        printf("Checkmate! %s wins!\n", game->toMove == 'w' ? "Black" : "White");
+                                        isGameOver = true;
+                                    } else {
+                                        printf("Stalemate! Game is a draw.\n");
+                                        isGameOver = true;
+                                    }
+                                }
+                            } else {
+                                printf("Illegal move! King would be in check.\n");
+                            }
                         } else {
                             printf("Illegal move!\n");
                         }
@@ -111,6 +131,28 @@ int main() {
         SDL_Delay(16);
     }
     
+    char* finalMessage = "Game Over!";
+    if (isKingInCheck(board, game->toMove) && !hasLegalMoves(board, game)) {
+        finalMessage = "Checkmate!";
+    } else if (!isKingInCheck(board, game->toMove) && !hasLegalMoves(board, game)) {
+        finalMessage = "Stalemate!";
+    }
+    
+    while(true) {
+        SDL_Event event;
+        while(SDL_PollEvent(&event)) {
+            if(event.type == SDL_QUIT) {
+                cleanupSDL();
+                free(board);
+                free(game);
+                return 0;
+            }
+        }
+        renderBoard(board, -1);
+        renderGameOver(finalMessage);
+        SDL_Delay(16);
+    }
+
     cleanupSDL();
     free(board);
     free(game);

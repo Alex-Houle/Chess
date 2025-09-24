@@ -1,16 +1,28 @@
-// src/sdl_utils.c
 #include "sdl_utils.h"
 #include "board.h"
 #include "type.h"
+#include <stdio.h>
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* pieceTextures[12];
+TTF_Font* font = NULL;
 
 void initializeSDL() {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         fprintf(stderr, "SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         exit(1);
+    }
+    
+    if (TTF_Init() == -1) {
+        fprintf(stderr, "SDL_ttf could not initialize! TTF_Error: %s\n", TTF_GetError());
+        SDL_Quit();
+        exit(1);
+    }
+
+    font = TTF_OpenFont("asset/font.ttf", 48); // User must provide a font file
+    if (font == NULL) {
+        fprintf(stderr, "Failed to load font! TTF_Error: %s\n", TTF_GetError());
     }
     
     window = SDL_CreateWindow("Chess Game", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
@@ -37,6 +49,7 @@ void initializeSDL() {
         SDL_Quit();
         exit(1);
     }
+    printf("SDL Initialized successfully. Window and Renderer created.\n");
 }
 
 void loadPieceTextures() {
@@ -80,6 +93,10 @@ void cleanupSDL() {
         }
     }
     
+    if (font != NULL) {
+        TTF_CloseFont(font);
+    }
+    TTF_Quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
@@ -135,4 +152,34 @@ void renderBoard(chessBoard* board, int selectedSquare) {
 
 void renderStatus(gameState* game) {
     //printf("%s to move\n", game->toMove == 'w' ? "White" : "Black");
+}
+
+void renderGameOver(const char* message) {
+    if (font == NULL) return;
+
+    SDL_Color white = {255, 255, 255, 255};
+    SDL_Surface* surface = TTF_RenderText_Blended(font, message, white);
+    if (surface == NULL) {
+        fprintf(stderr, "Failed to render text surface: %s\n", TTF_GetError());
+        return;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (texture == NULL) {
+        fprintf(stderr, "Failed to create text texture: %s\n", SDL_GetError());
+        SDL_FreeSurface(surface);
+        return;
+    }
+
+    SDL_Rect textRect;
+    textRect.w = surface->w;
+    textRect.h = surface->h;
+    textRect.x = (WINDOW_WIDTH - textRect.w) / 2;
+    textRect.y = (WINDOW_HEIGHT - textRect.h) / 2;
+
+    SDL_RenderCopy(renderer, texture, NULL, &textRect);
+    SDL_RenderPresent(renderer);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
 }

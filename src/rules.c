@@ -2,6 +2,8 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "type.h"
+#include "rules.h"
+#include "board.h"
 
 // Constants for file and rank masks
 #define FILE_A 0x0101010101010101ULL
@@ -188,4 +190,113 @@ uint64_t blackPawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy) {
     // It should be handled in the 'move' function when checking for a valid move.
 
     return moves;
+}
+
+bool isKingInCheck(chessBoard* board, char playerColor) {
+    uint64_t kingPosition;
+
+    if (playerColor == 'w') {
+        kingPosition = board->wKing;
+    } else {
+        kingPosition = board->bKing;
+    }
+
+    int kingSquare = __builtin_ctzll(kingPosition); // Find the index of the king's bit
+
+    // Check for attacks from opponent's pawns
+    if (playerColor == 'w') {
+        if ((BIT(kingSquare) >> 9) & board->bPawn && (kingSquare % 8 > 0)) return true;
+        if ((BIT(kingSquare) >> 7) & board->bPawn && (kingSquare % 8 < 7)) return true;
+    } else {
+        if ((BIT(kingSquare) << 9) & board->wPawn && (kingSquare % 8 < 7)) return true;
+        if ((BIT(kingSquare) << 7) & board->wPawn && (kingSquare % 8 > 0)) return true;
+    }
+    
+    // Check for attacks from opponent's knights
+    if (knightMovesBB(bitToPosition(kingSquare)) & ((playerColor == 'w') ? board->bKnight : board->wKnight)) {
+        return true;
+    }
+
+    uint64_t occupied = board->whitePeices | board->blackPeices;
+    // Check for attacks from opponent's rooks or queens
+    if (rookMovesBB(bitToPosition(kingSquare), occupied) & ((playerColor == 'w') ? (board->bRook | board->bQueen) : (board->wRook | board->wQueen))) {
+        return true;
+    }
+
+    // Check for attacks from opponent's bishops or queens
+    if (bishopMovesBB(bitToPosition(kingSquare), occupied) & ((playerColor == 'w') ? (board->bBishop | board->bQueen) : (board->wBishop | board->wQueen))) {
+        return true;
+    }
+
+    // Check for attacks from opponent's king
+    if (kingMovesBB(bitToPosition(kingSquare)) & ((playerColor == 'w') ? board->bKing : board->wKing)) {
+        return true;
+    }
+
+    return false;
+}
+
+bool hasLegalMoves(chessBoard* board, gameState* game) {
+    uint64_t playerPieces;
+    if (game->toMove == 'w') {
+        playerPieces = board->whitePeices;
+    } else {
+        playerPieces = board->blackPeices;
+    }
+
+    int from_square;
+    for (int i = 0; i < 64; i++) {
+        if ((playerPieces >> i) & 1) {
+            from_square = i;
+            uint64_t moves_bb = 0;
+            ChessPosition from_pos = {from_square / 8, from_square % 8};
+            uint64_t occupied = board->whitePeices | board->blackPeices;
+
+            if (game->toMove == 'w') {
+                if (board->wPawn & BIT(from_square)) {
+                    moves_bb = whitePawnMovesBB(from_pos, board->empty, board->blackPeices);
+                } else if (board->wKnight & BIT(from_square)) {
+                    moves_bb = knightMovesBB(from_pos);
+                } else if (board->wBishop & BIT(from_square)) {
+                    moves_bb = bishopMovesBB(from_pos, occupied);
+                } else if (board->wRook & BIT(from_square)) {
+                    moves_bb = rookMovesBB(from_pos, occupied);
+                } else if (board->wQueen & BIT(from_square)) {
+                    moves_bb = queenMovesBB(from_pos, occupied);
+                } else if (board->wKing & BIT(from_square)) {
+                    moves_bb = kingMovesBB(from_pos);
+                }
+                moves_bb &= ~board->whitePeices;
+            } else { // Black's turn
+                if (board->bPawn & BIT(from_square)) {
+                    moves_bb = blackPawnMovesBB(from_pos, board->empty, board->whitePeices);
+                } else if (board->bKnight & BIT(from_square)) {
+                    moves_bb = knightMovesBB(from_pos);
+                } else if (board->bBishop & BIT(from_square)) {
+                    moves_bb = bishopMovesBB(from_pos, occupied);
+                } else if (board->bRook & BIT(from_square)) {
+                    moves_bb = rookMovesBB(from_pos, occupied);
+                } else if (board->bQueen & BIT(from_square)) {
+                    moves_bb = queenMovesBB(from_pos, occupied);
+                } else if (board->bKing & BIT(from_square)) {
+                    moves_bb = kingMovesBB(from_pos);
+                }
+                moves_bb &= ~board->blackPeices;
+            }
+            
+            while (moves_bb != 0) {
+                int to_square = __builtin_ctzll(moves_bb);
+                moves_bb &= moves_bb - 1;
+
+                chessBoard temp_board = *board;
+                gameState temp_game = *game;
+                move(&temp_board, &temp_game, from_square, to_square);
+
+                if (!isKingInCheck(&temp_board, game->toMove)) {
+                    return true; 
+                }
+            }
+        }
+    }
+    return false;
 }

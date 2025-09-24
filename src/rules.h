@@ -13,5 +13,7 @@ uint64_t knightMovesBB(ChessPosition position);
 uint64_t kingMovesBB(ChessPosition pos);
 uint64_t whitePawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy);
 uint64_t blackPawnMovesBB(ChessPosition pos, uint64_t empty, uint64_t enemy);
+bool isKingInCheck(chessBoard* board, char playerColor);
+bool hasLegalMoves(chessBoard* board, gameState* game);
 
 #endif

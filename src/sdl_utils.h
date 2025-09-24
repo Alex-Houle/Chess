@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 #include "board.h"
 #include "type.h"
 
@@ -29,6 +30,7 @@ typedef enum {
 extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* pieceTextures[12];
+extern TTF_Font* font;
 
 // Function declarations
 void initializeSDL();
@@ -36,5 +38,6 @@ void loadPieceTextures();
 void cleanupSDL();
 void renderBoard(chessBoard* board, int selectedSquare);
 void renderStatus(gameState* game);
+void renderGameOver(const char* message);
 
 #endif // SDL_UTILS_H
