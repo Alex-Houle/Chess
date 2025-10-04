@@ -51,6 +51,7 @@ typedef struct {
   bool bQueenCastle;
 
   char toMove;
+  int enPassantSquare;
 
 } gameState;
 

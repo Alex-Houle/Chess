@@ -4,6 +4,7 @@
 #include "rules.h"
 #include "sdl_utils.h"
 #include <stdbool.h>
+#include <stdlib.h> // For malloc, free, and abs (abs is actually only needed in board.c now)
 
 int main() {
     chessBoard *board = malloc(sizeof(chessBoard));
@@ -61,7 +62,7 @@ int main() {
                         // Generate moves based on the selected piece
                         if (game->toMove == 'w') {
                             if (board->wPawn & from_bb) {
-                                moves_bb = whitePawnMovesBB(from_pos, board->empty, board->blackPeices);
+                                moves_bb = whitePawnMovesBB(from_pos, board->empty, board->blackPeices, game->enPassantSquare);
                             } else if (board->wKnight & from_bb) {
                                 moves_bb = knightMovesBB(from_pos);
                             } else if (board->wBishop & from_bb) {
@@ -72,12 +73,28 @@ int main() {
                                 moves_bb = queenMovesBB(from_pos, occupied);
                             } else if (board->wKing & from_bb) {
                                 moves_bb = kingMovesBB(from_pos);
+                                
+                                // Manually add castling moves to the moves_bb if the king is selected
+                                if (selectedSquare == 4) { // E1
+                                    // Kingside (E1 to G1)
+                                    if (game->wKingCastle && (BIT(7) & board->wRook) && (BIT(5) & board->empty) && (BIT(6) & board->empty)) {
+                                        if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 5, 'b') && !isSquareAttacked(board, 6, 'b')) {
+                                            moves_bb |= BIT(6);
+                                        }
+                                    }
+                                    // Queenside (E1 to C1)
+                                    if (game->wQueenCastle && (BIT(0) & board->wRook) && (BIT(3) & board->empty) && (BIT(2) & board->empty) && (BIT(1) & board->empty)) {
+                                        if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 3, 'b') && !isSquareAttacked(board, 2, 'b')) {
+                                            moves_bb |= BIT(2);
+                                        }
+                                    }
+                                }
                             }
                             // Filter moves to prevent captures of friendly pieces
                             moves_bb &= ~board->whitePeices;
                         } else { // Black's turn
                             if (board->bPawn & from_bb) {
-                                moves_bb = blackPawnMovesBB(from_pos, board->empty, board->whitePeices);
+                                moves_bb = blackPawnMovesBB(from_pos, board->empty, board->whitePeices, game->enPassantSquare);
                             } else if (board->bKnight & from_bb) {
                                 moves_bb = knightMovesBB(from_pos);
                             } else if (board->bBishop & from_bb) {
@@ -88,6 +105,22 @@ int main() {
                                 moves_bb = queenMovesBB(from_pos, occupied);
                             } else if (board->bKing & from_bb) {
                                 moves_bb = kingMovesBB(from_pos);
+                                
+                                // Manually add castling moves to the moves_bb if the king is selected
+                                if (selectedSquare == 60) { // E8
+                                    // Kingside (E8 to G8)
+                                    if (game->bKingCastle && (BIT(63) & board->bRook) && (BIT(61) & board->empty) && (BIT(62) & board->empty)) {
+                                        if (!isKingInCheck(board, 'b') && !isSquareAttacked(board, 61, 'w') && !isSquareAttacked(board, 62, 'w')) {
+                                            moves_bb |= BIT(62);
+                                        }
+                                    }
+                                    // Queenside (E8 to C8)
+                                    if (game->bQueenCastle && (BIT(56) & board->bRook) && (BIT(59) & board->empty) && (BIT(58) & board->empty) && (BIT(57) & board->empty)) {
+                                        if (!isKingInCheck(board, 'b') && !isSquareAttacked(board, 59, 'w') && !isSquareAttacked(board, 58, 'w')) {
+                                            moves_bb |= BIT(58);
+                                        }
+                                    }
+                                }
                             }
                             // Filter moves to prevent captures of friendly pieces
                             moves_bb &= ~board->blackPeices;
