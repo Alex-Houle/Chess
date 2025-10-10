@@ -4,7 +4,10 @@
 #include "rules.h"
 #include "sdl_utils.h"
 #include <stdbool.h>
-#include <stdlib.h> // For malloc, free, and abs (abs is actually only needed in board.c now)
+#include <stdlib.h> 
+#include "search.h" // Changed from <search.h> to "search.h"
+
+#define AI_SEARCH_DEPTH 3 // Define a search depth for the AI
 
 int main() {
     chessBoard *board = malloc(sizeof(chessBoard));
@@ -29,13 +32,47 @@ int main() {
     bool isGameOver = false;
     
     while (!isGameOver) {
+        // --- AI Turn Logic (Black) ---
+        if (game->toMove == 'b' && !isGameOver) {
+            printf("AI (Black) is thinking at depth %d...\n", AI_SEARCH_DEPTH);
+            Move ai_move = findBestMove(board, game, AI_SEARCH_DEPTH);
+
+            if (ai_move.fromSquare != -1) {
+                // Execute the AI's move
+                move(board, game, ai_move.fromSquare, ai_move.toSquare);
+                printf("AI moved: %d to %d\n", ai_move.fromSquare, ai_move.toSquare);
+                
+                // Check for game end conditions after AI move
+                if (!hasLegalMoves(board, game)) {
+                    if (isKingInCheck(board, game->toMove)) {
+                        printf("Checkmate! %s wins!\n", game->toMove == 'w' ? "Black" : "White");
+                        isGameOver = true;
+                    } else {
+                        printf("Stalemate! Game is a draw.\n");
+                        isGameOver = true;
+                    }
+                }
+            } else {
+                 // This should only happen if findBestMove fails to find a legal move
+                if (!hasLegalMoves(board, game)) {
+                    printf("Game Over: No legal moves for Black (should have been caught earlier).\n");
+                } else {
+                    printf("Error: AI returned no move despite legal moves existing.\n");
+                }
+                isGameOver = true; // Terminate if AI fails to move
+            }
+        }
+        
+        // --- Human Turn Logic (White) ---
         while (SDL_PollEvent(&e) != 0) {
             if (e.type == SDL_QUIT) {
                 isGameOver = true;
             } else if (e.type == SDL_MOUSEBUTTONDOWN) {
-                if (e.button.button == SDL_BUTTON_LEFT) {
+                // Only process human moves if it's White's turn
+                if (e.button.button == SDL_BUTTON_LEFT && game->toMove == 'w' && !isGameOver) {
                     int x = e.button.x / SQUARE_SIZE;
-                    int y = 7 - (e.button.y / SQUARE_SIZE);
+                    // Y-axis is inverted for rendering, so we flip it for bitboard indexing
+                    int y = 7 - (e.button.y / SQUARE_SIZE); 
                     int clickedSquare = y * 8 + x;
                     
                     printf("Clicked square: %d (row: %d, col: %d)\n", 
@@ -47,9 +84,8 @@ int main() {
                     uint64_t occupied = board->whitePeices | board->blackPeices;
                     
                     if (selectedSquare == -1) {
-                        // No piece selected, check if the clicked square has a piece of the current player's color
-                        if ((game->toMove == 'w' && (board->whitePeices & clicked_bb)) ||
-                            (game->toMove == 'b' && (board->blackPeices & clicked_bb))) {
+                        // ... (Logic for selecting a white piece remains the same)
+                        if (board->whitePeices & clicked_bb) {
                             selectedSquare = clickedSquare;
                         }
                     } else {
@@ -59,72 +95,39 @@ int main() {
                         uint64_t moves_bb = 0;
                         ChessPosition from_pos = {selectedSquare / 8, selectedSquare % 8};
 
-                        // Generate moves based on the selected piece
-                        if (game->toMove == 'w') {
-                            if (board->wPawn & from_bb) {
-                                moves_bb = whitePawnMovesBB(from_pos, board->empty, board->blackPeices, game->enPassantSquare);
-                            } else if (board->wKnight & from_bb) {
-                                moves_bb = knightMovesBB(from_pos);
-                            } else if (board->wBishop & from_bb) {
-                                moves_bb = bishopMovesBB(from_pos, occupied);
-                            } else if (board->wRook & from_bb) {
-                                moves_bb = rookMovesBB(from_pos, occupied);
-                            } else if (board->wQueen & from_bb) {
-                                moves_bb = queenMovesBB(from_pos, occupied);
-                            } else if (board->wKing & from_bb) {
-                                moves_bb = kingMovesBB(from_pos);
-                                
-                                // Manually add castling moves to the moves_bb if the king is selected
-                                if (selectedSquare == 4) { // E1
-                                    // Kingside (E1 to G1)
-                                    if (game->wKingCastle && (BIT(7) & board->wRook) && (BIT(5) & board->empty) && (BIT(6) & board->empty)) {
-                                        if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 5, 'b') && !isSquareAttacked(board, 6, 'b')) {
-                                            moves_bb |= BIT(6);
-                                        }
+                        // Generate moves based on the selected piece (only for White, since we are in the 'w' turn block)
+                        if (board->wPawn & from_bb) {
+                            moves_bb = whitePawnMovesBB(from_pos, board->empty, board->blackPeices, game->enPassantSquare);
+                        } else if (board->wKnight & from_bb) {
+                            moves_bb = knightMovesBB(from_pos);
+                        } else if (board->wBishop & from_bb) {
+                            moves_bb = bishopMovesBB(from_pos, occupied);
+                        } else if (board->wRook & from_bb) {
+                            moves_bb = rookMovesBB(from_pos, occupied);
+                        } else if (board->wQueen & from_bb) {
+                            moves_bb = queenMovesBB(from_pos, occupied);
+                        } else if (board->wKing & from_bb) {
+                            moves_bb = kingMovesBB(from_pos);
+                            
+                            // Manually add castling moves to the moves_bb if the king is selected
+                            if (selectedSquare == 4) { // E1
+                                // Kingside (E1 to G1)
+                                if (game->wKingCastle && (BIT(7) & board->wRook) && (BIT(5) & board->empty) && (BIT(6) & board->empty)) {
+                                    if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 5, 'b') && !isSquareAttacked(board, 6, 'b')) {
+                                        moves_bb |= BIT(6);
                                     }
-                                    // Queenside (E1 to C1)
-                                    if (game->wQueenCastle && (BIT(0) & board->wRook) && (BIT(3) & board->empty) && (BIT(2) & board->empty) && (BIT(1) & board->empty)) {
-                                        if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 3, 'b') && !isSquareAttacked(board, 2, 'b')) {
-                                            moves_bb |= BIT(2);
-                                        }
+                                }
+                                // Queenside (E1 to C1)
+                                if (game->wQueenCastle && (BIT(0) & board->wRook) && (BIT(3) & board->empty) && (BIT(2) & board->empty) && (BIT(1) & board->empty)) {
+                                    if (!isKingInCheck(board, 'w') && !isSquareAttacked(board, 3, 'b') && !isSquareAttacked(board, 2, 'b')) {
+                                        moves_bb |= BIT(2);
                                     }
                                 }
                             }
-                            // Filter moves to prevent captures of friendly pieces
-                            moves_bb &= ~board->whitePeices;
-                        } else { // Black's turn
-                            if (board->bPawn & from_bb) {
-                                moves_bb = blackPawnMovesBB(from_pos, board->empty, board->whitePeices, game->enPassantSquare);
-                            } else if (board->bKnight & from_bb) {
-                                moves_bb = knightMovesBB(from_pos);
-                            } else if (board->bBishop & from_bb) {
-                                moves_bb = bishopMovesBB(from_pos, occupied);
-                            } else if (board->bRook & from_bb) {
-                                moves_bb = rookMovesBB(from_pos, occupied);
-                            } else if (board->bQueen & from_bb) {
-                                moves_bb = queenMovesBB(from_pos, occupied);
-                            } else if (board->bKing & from_bb) {
-                                moves_bb = kingMovesBB(from_pos);
-                                
-                                // Manually add castling moves to the moves_bb if the king is selected
-                                if (selectedSquare == 60) { // E8
-                                    // Kingside (E8 to G8)
-                                    if (game->bKingCastle && (BIT(63) & board->bRook) && (BIT(61) & board->empty) && (BIT(62) & board->empty)) {
-                                        if (!isKingInCheck(board, 'b') && !isSquareAttacked(board, 61, 'w') && !isSquareAttacked(board, 62, 'w')) {
-                                            moves_bb |= BIT(62);
-                                        }
-                                    }
-                                    // Queenside (E8 to C8)
-                                    if (game->bQueenCastle && (BIT(56) & board->bRook) && (BIT(59) & board->empty) && (BIT(58) & board->empty) && (BIT(57) & board->empty)) {
-                                        if (!isKingInCheck(board, 'b') && !isSquareAttacked(board, 59, 'w') && !isSquareAttacked(board, 58, 'w')) {
-                                            moves_bb |= BIT(58);
-                                        }
-                                    }
-                                }
-                            }
-                            // Filter moves to prevent captures of friendly pieces
-                            moves_bb &= ~board->blackPeices;
                         }
+                        // Filter moves to prevent captures of friendly pieces
+                        moves_bb &= ~board->whitePeices;
+
 
                         // Check if the clicked square is a valid move
                         if (moves_bb & to_bb) {
@@ -135,6 +138,7 @@ int main() {
 
                             if (!isKingInCheck(&temp_board, game->toMove)) {
                                 move(board, game, selectedSquare, clickedSquare);
+                                
                                 // After a move, check for game end conditions
                                 if (!hasLegalMoves(board, game)) {
                                     if (isKingInCheck(board, game->toMove)) {
@@ -152,8 +156,12 @@ int main() {
                             printf("Illegal move!\n");
                         }
                         
-                        // Deselect the piece
-                        selectedSquare = -1;
+                        // Deselect the piece or select the new piece if it belongs to the human (White)
+                        if ((board->whitePeices & clicked_bb)) {
+                             selectedSquare = clickedSquare;
+                        } else {
+                             selectedSquare = -1;
+                        }
                     }
                 }
             }
@@ -166,9 +174,9 @@ int main() {
     
     char* finalMessage = "Game Over!";
     if (isKingInCheck(board, game->toMove) && !hasLegalMoves(board, game)) {
-        finalMessage = "Checkmate!";
+        finalMessage = (game->toMove == 'w') ? "Checkmate! Black Wins!" : "Checkmate! White Wins!";
     } else if (!isKingInCheck(board, game->toMove) && !hasLegalMoves(board, game)) {
-        finalMessage = "Stalemate!";
+        finalMessage = "Stalemate! Draw.";
     }
     
     while(true) {

@@ -1,4 +1,5 @@
 #include "eval.h"
+#include "type.h"
 #include <stdio.h>
 #include <stdint.h>
 
