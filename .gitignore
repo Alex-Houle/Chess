@@ -1,7 +1,8 @@
-* .o
+*.o
+
 
 *.py
 
 *.idx
 
-board
+chess
